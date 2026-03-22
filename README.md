@@ -1,12 +1,15 @@
 # Personal Expense Tracker
 
-This is a simple Python project that helps users track daily expenses.
+A Python project that helps users track daily expenses.
 
-Features:
-- Add expense
+Features
+- Add expense with category
+- Store data in CSV file
 - View all expenses
 - Calculate total expenses
+- Visualize expenses using graph
 
-Technology Used:
+Technologies Used
 - Python
-- CSV file for storage
+- CSV
+- Matplotlib
