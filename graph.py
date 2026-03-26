@@ -1,24 +1,34 @@
-import csv
 import matplotlib.pyplot as plt
+from expense_tracker import get_category_summary
 
-file = "expenses.csv"
 
-categories = {}
-with open(file, "r") as f:
-    reader = csv.reader(f)
+def show_category_graph():
+    categories = get_category_summary()
 
-    for row in reader:
-        category = row[1]
-        amount = float(row[2])
+    if not categories:
+        print("No data to display.")
+        return
 
-        if category in categories:
-            categories[category] += amount
-        else:
-            categories[category] = amount
+    plt.figure()
+    plt.pie(categories.values(), labels=categories.keys(), autopct='%1.1f%%')
+    plt.title("Expense Distribution")
+    plt.show()
 
-plt.bar(categories.keys(), categories.values())
-plt.title("Expense by Category")
-plt.xlabel("Category")
-plt.ylabel("Amount")
 
-plt.show()
+def show_insights():
+    categories = get_category_summary()
+
+    if not categories:
+        return "No data available."
+
+    total = sum(categories.values())
+    max_cat = max(categories, key=categories.get)
+
+    insight = f"Top spending category: {max_cat}\n"
+    insight += f"Spent ₹{categories[max_cat]} on {max_cat}\n"
+
+    for cat, amt in categories.items():
+        percent = (amt / total) * 100
+        insight += f"{cat}: {percent:.1f}%\n"
+
+    return insight

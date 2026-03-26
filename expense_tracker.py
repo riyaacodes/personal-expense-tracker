@@ -1,51 +1,85 @@
 import csv
+import os
 from datetime import datetime
 
-file = "expenses.csv"
+FILE = "expenses.csv"
 
-def add_expense():
-    name = input("Enter expense name: ")
-    category = input("Enter category (Food/Travel/Shopping): ")
-    amount = input("Enter amount: ")
+
+def initialize_file():
+    if not os.path.exists(FILE) or os.stat(FILE).st_size == 0:
+        with open(FILE, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["Name", "Category", "Amount", "Date"])
+
+
+def add_expense(name, category, amount):
     date = datetime.now().strftime("%Y-%m-%d")
 
-    with open(file, "a", newline="") as f:
+    with open(FILE, "a", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([name, category, amount, date])
 
-    print("Expense added successfully!")
 
-def view_expenses():
+def get_all_expenses():
+    expenses = []
+
     try:
-        with open(file, "r") as f:
+        with open(FILE, "r") as f:
             reader = csv.reader(f)
-            total = 0
+            next(reader)
 
-            print("\nExpenses:")
             for row in reader:
-                print(row[0], "|", row[1], "|", row[2], "|", row[3])
-                total += float(row[2])
+                expenses.append(row)
 
-            print("\nTotal Expense:", total)
+    except FileNotFoundError:
+        pass
 
-    except:
-        print("No expenses recorded yet.")
+    return expenses
 
 
-while True:
+def get_total_expense():
+    return sum(float(row[2]) for row in get_all_expenses())
 
-    print("\nExpense Tracker")
-    print("1 Add Expense")
-    print("2 View Expenses")
-    print("3 Exit")
 
-    choice = input("Enter choice: ")
+def get_category_summary():
+    summary = {}
 
-    if choice == "1":
-        add_expense()
+    for row in get_all_expenses():
+        category = row[1]
+        amount = float(row[2])
 
-    elif choice == "2":
-        view_expenses()
+        summary[category] = summary.get(category, 0) + amount
 
-    elif choice == "3":
-        break
+    return summary
+
+
+def get_monthly_summary():
+    summary = {}
+
+    for row in get_all_expenses():
+        month = row[3][:7]
+        amount = float(row[2])
+
+        summary[month] = summary.get(month, 0) + amount
+
+    return summary
+
+
+def clear_all_expenses():
+    with open(FILE, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Name", "Category", "Amount", "Date"])
+
+
+def delete_last_expense():
+    rows = get_all_expenses()
+
+    if not rows:
+        return
+
+    rows.pop()
+
+    with open(FILE, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Name", "Category", "Amount", "Date"])
+        writer.writerows(rows)
